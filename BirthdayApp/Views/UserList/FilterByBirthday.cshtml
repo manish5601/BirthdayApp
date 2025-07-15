@@ -1,0 +1,164 @@
+@model BirthdayApp.Models.BirthdayFilterModel
+
+@{
+    ViewData["Title"] = "Birthday Filter";
+    
+    // Helper function to check if today is user's birthday
+    bool IsTodayBirthday(DateOnly dateOfBirth)
+    {
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        return dateOfBirth.Month == today.Month && dateOfBirth.Day == today.Day;
+    }
+    
+    // Helper function to get month name
+    string GetMonthName(int month)
+    {
+        return System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(month);
+    }
+}
+
+<h1>Birthday Filter Results</h1>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="mb-3">
+    <a asp-action="Index" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-1"></i>Back to User List
+    </a>
+</div>
+
+@if (Model.SelectedDate.HasValue)
+{
+    var selectedMonth = Model.SelectedDate.Value.Month;
+    var selectedDay = Model.SelectedDate.Value.Day;
+    var isToday = IsTodayBirthday(Model.SelectedDate.Value);
+    
+    <div class="card mb-4">
+        <div class="card-header @(isToday ? "bg-success text-white" : "bg-info text-white")">
+            <h4 class="mb-0">
+                <i class="fas fa-birthday-cake me-2"></i>
+                Birthdays on @GetMonthName(selectedMonth) @selectedDay
+                @if (isToday)
+                {
+                    <span class="badge bg-warning text-dark ms-2">Today!</span>
+                }
+            </h4>
+        </div>
+        <div class="card-body">
+            @if (Model.UsersWithSameBirthday.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Birthday</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var user in Model.UsersWithSameBirthday)
+                            {
+                                <tr>
+                                    <td>
+                                        @user.UserName
+                                        @if (IsTodayBirthday(user.DateOfBirth))
+                                        {
+                                            <span class="badge bg-success ms-2">
+                                                <i class="fas fa-birthday-cake me-1"></i>Today!
+                                            </span>
+                                        }
+                                    </td>
+                                    <td>@user.UserEmail</td>
+                                    <td>@user.DateOfBirth.ToString("MMMM dd, yyyy")</td>
+                                    <td>
+                                        @if (IsTodayBirthday(user.DateOfBirth))
+                                        {
+                                            <a asp-action="SendWish" asp-route-toUserId="@user.Id" asp-route-birthdayDate="@user.DateOfBirth" class="btn btn-success btn-sm">
+                                                <i class="fas fa-gift me-1"></i>Send Birthday Wish
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted small">
+                                                <i class="fas fa-calendar me-1"></i>Not today
+                                            </span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    No users found with birthday on @GetMonthName(selectedMonth) @selectedDay.
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Birthday Wishes Section -->
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">
+                <i class="fas fa-gift me-2"></i>
+                Birthday Wishes for @GetMonthName(selectedMonth) @selectedDay
+            </h4>
+        </div>
+        <div class="card-body">
+            @if (Model.BirthdayWishes.Any())
+            {
+                <div class="row">
+                    @foreach (var wish in Model.BirthdayWishes)
+                    {
+                        <div class="col-md-6 mb-3">
+                            <div class="card border-primary">
+                                <div class="card-header bg-primary text-white">
+                                    <small>From: @wish.FromUserName</small>
+                                    @if (wish.EmailSent)
+                                    {
+                                        <span class="badge bg-success ms-2">
+                                            <i class="fas fa-envelope me-1"></i>Email Sent
+                                        </span>
+                                    }
+                                </div>
+                                <div class="card-body">
+                                    <p class="card-text">@wish.WishMessage</p>
+                                    <small class="text-muted">To: @wish.ToUserName</small>
+                                </div>
+                                <div class="card-footer text-muted">
+                                    <small>@wish.CreatedAt.ToString("MMM dd, yyyy 'at' h:mm tt")</small>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    No birthday wishes found for @GetMonthName(selectedMonth) @selectedDay.
+                </div>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-warning">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        Please select a month and day to filter users by birthday.
+    </div>
+} 

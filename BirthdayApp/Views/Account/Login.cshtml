@@ -1,0 +1,26 @@
+@{
+    ViewData["Title"] = "Login";
+}
+<!-- Tailwind CDN -->
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<div class="flex items-center justify-center min-h-screen bg-gray-100">
+    <div class="w-full max-w-md bg-white p-8 rounded shadow">
+        <h2 class="text-2xl font-bold mb-6 text-center">Login</h2>
+        @if (ViewBag.Error != null)
+        {
+            <div class="mb-4 text-red-600">@ViewBag.Error</div>
+        }
+        <form asp-action="Login" method="post" class="space-y-4">
+            <div>
+                <label class="block mb-1 font-medium">Email</label>
+                <input type="email" name="UserEmail" class="w-full border rounded px-3 py-2" required />
+            </div>
+            <div>
+                <label class="block mb-1 font-medium">Password</label>
+                <input type="password" name="UserPassword" class="w-full border rounded px-3 py-2" required />
+            </div>
+            <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Login</button>
+        </form>
+        <p class="mt-4 text-center">Don't have an account? <a asp-action="Register" class="text-blue-600 hover:underline">Register here</a></p>
+    </div>
+</div> 

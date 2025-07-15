@@ -1,0 +1,128 @@
+﻿@model IEnumerable<BirthdayApp.Models.UserList>
+
+@{
+    ViewData["Title"] = "User List";
+    
+    // Helper function to check if today is user's birthday
+    bool IsTodayBirthday(DateOnly dateOfBirth)
+    {
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        return dateOfBirth.Month == today.Month && dateOfBirth.Day == today.Day;
+    }
+}
+
+<h1>User List</h1>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Create New User</a>
+</p>
+
+<!-- Birthday Filter Section -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5><i class="fas fa-filter me-2"></i>Filter by Birthday</h5>
+    </div>
+    <div class="card-body">
+        <form asp-action="FilterByBirthday" method="get" class="row g-3">
+            <div class="col-md-3">
+                <label for="month" class="form-label">Month:</label>
+                <select id="month" name="month" class="form-select">
+                    <option value="">Select Month</option>
+                    <option value="1">January</option>
+                    <option value="2">February</option>
+                    <option value="3">March</option>
+                    <option value="4">April</option>
+                    <option value="5">May</option>
+                    <option value="6">June</option>
+                    <option value="7">July</option>
+                    <option value="8">August</option>
+                    <option value="9">September</option>
+                    <option value="10">October</option>
+                    <option value="11">November</option>
+                    <option value="12">December</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="day" class="form-label">Day:</label>
+                <select id="day" name="day" class="form-select">
+                    <option value="">Select Day</option>
+                    @for (int i = 1; i <= 31; i++)
+                    {
+                        <option value="@i">@i</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">&nbsp;</label>
+                <button type="submit" class="btn btn-info d-block w-100">
+                    <i class="fas fa-search me-1"></i>Find Birthdays
+                </button>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">&nbsp;</label>
+                <a asp-action="FilterByBirthday" class="btn btn-outline-secondary d-block w-100">
+                    <i class="fas fa-calendar-day me-1"></i>Today's Birthdays
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<table class="table table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UserEmail)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DateOfBirth)
+            </th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.UserName)
+                @if (IsTodayBirthday(item.DateOfBirth))
+                {
+                    <span class="badge bg-success ms-2">
+                        <i class="fas fa-birthday-cake me-1"></i>Today!
+                    </span>
+                }
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UserEmail)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DateOfBirth)
+            </td>
+            <td>
+                <div class="btn-group" role="group">
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">Edit</a>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm">Details</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Delete</a>
+                    @if (IsTodayBirthday(item.DateOfBirth))
+                    {
+                        <a asp-action="SendWish" asp-route-toUserId="@item.Id" asp-route-birthdayDate="@item.DateOfBirth" class="btn btn-success btn-sm">
+                            <i class="fas fa-gift me-1"></i>Send Wish
+                        </a>
+                    }
+                </div>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

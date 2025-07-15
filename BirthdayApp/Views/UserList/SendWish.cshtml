@@ -1,0 +1,71 @@
+@model BirthdayApp.Models.BirthdayWishModel
+
+@{
+    ViewData["Title"] = "Send Birthday Wish";
+}
+
+<h1>Send Birthday Wish</h1>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4>Send Birthday Wish to @Model.ToUserName</h4>
+                <p class="text-muted mb-0">Birthday: @Model.BirthdayDate.ToString("MMMM dd, yyyy")</p>
+            </div>
+            <div class="card-body">
+                <form asp-action="SendWish" method="post">
+                    <input type="hidden" asp-for="ToUserId" />
+                    <input type="hidden" asp-for="ToUserName" />
+                    <input type="hidden" asp-for="BirthdayDate" />
+                    
+                    <div class="mb-3">
+                        <label asp-for="WishMessage" class="form-label">Your Birthday Wish Message:</label>
+                        <textarea asp-for="WishMessage" class="form-control" rows="5" placeholder="Write your birthday wish here..." required></textarea>
+                        <span asp-validation-for="WishMessage" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-success">Send Wish</button>
+                        <a asp-action="FilterByBirthday" asp-route-selectedDate="@Model.BirthdayDate" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Quick Wish Templates</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="setWishMessage('Happy Birthday! 🎉 May your day be filled with joy and laughter.')">
+                        Happy Birthday! 🎉
+                    </button>
+                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="setWishMessage('Wishing you a fantastic birthday filled with love, happiness, and wonderful surprises!')">
+                        Fantastic Birthday! ✨
+                    </button>
+                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="setWishMessage('Another year older, another year wiser! Happy Birthday and may all your dreams come true!')">
+                        Another Year Wiser! 🎂
+                    </button>
+                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="setWishMessage('Sending you warm birthday wishes and hoping your special day brings you everything you wish for!')">
+                        Warm Wishes! 🌟
+                    </button>
+                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="setWishMessage('Happy Birthday! May this year bring you success, health, and endless happiness!')">
+                        Success & Happiness! 🎊
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function setWishMessage(message) {
+            document.getElementById('WishMessage').value = message;
+        }
+    </script>
+} 
